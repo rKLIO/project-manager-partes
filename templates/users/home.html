@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Tableau de bord - {{ user.first_name }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    {% comment %} <link rel="stylesheet" href="{% static 'css/style.css' %}"> {% endcomment %}
+</head>
+<body>
+    <h1>Welcome, {{ user.first_name }}!</h1>
+
+    <p>This is your personal dashboard.</p>
+
+    <h2>My Projects</h2>
+
+    {% if projects %}
+      <ul>
+        {% for project in projects %}
+        <li>
+          {{ project.title }} –
+          <a href="{% url 'project_detail' slug=project.slug %}">View</a> |
+          <a href="{% url 'edit_project' slug=project.slug %}">Edit</a> |
+          <a href="{% url 'delete_project' slug=project.slug %}">Delete</a>
+        </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>You have no projects yet.</p>
+    {% endif %}
+
+    <a href="{% url 'create_project' %}">+ Add Project</a>
+
+    <hr>
+
+    <ul>    
+      <li><a href="#">My Tasks</a> (coming soon)</li>
+      <li><a href="{% url 'logout' %}">Logout</a></li>
+    </ul>
+</body>
+</html>

@@ -1,0 +1,9 @@
+<h1>Edit Project: {{ project.title }}</h1>
+
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Save Changes</button>
+</form>
+
+<a href="{% url 'home' %}">Cancel</a>

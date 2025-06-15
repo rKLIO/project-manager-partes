@@ -1,0 +1,201 @@
+<h1>Gérer les membres de {{ project.name }}</h1>
+
+{% if messages %}
+  <ul class="messages">
+    {% for message in messages %}
+      <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}
+
+<form method="post" onsubmit="return validateAddMemberForm();" novalidate>
+  {% csrf_token %}
+  <table>
+    <tr>
+      <th>Utilisateur</th>
+      <th>Rôle</th>
+      <th>Action</th>
+    </tr>
+    {% for membership, form in forms_list %}
+    <tr>
+      <td>
+        {{ membership.user.username }}
+        {% if membership.role == 'manager' %}
+          <span class="badge manager-badge">Manager</span>
+        {% elif membership.role == 'member' %}
+          <span class="badge member-badge">Membre</span>
+        {% elif membership.user == project.owner %}
+          <span class="badge owner-badge">Propriétaire</span>
+        {% endif %}
+      </td>
+
+      <td>
+        {% if membership.user == project.owner %}
+          Propriétaire
+        {% elif can_edit %}
+          {{ form.role }}
+        {% else %}
+          {{ membership.get_role_display }}
+        {% endif %}
+      </td>
+      <td>
+        {% if membership.user == project.owner %}
+          (Non retirable)
+        {% elif can_edit and user == project.owner or can_edit and user_is_manager and membership.role == 'member' %}
+          <a href="{% url 'remove_member' slug=project.slug user_id=membership.user.id %}" class="confirm-removal">Retirer</a>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  {% if can_edit %}
+    <button type="submit" id="update-btn" name="update_members">Mettre à jour</button>
+
+    <h2>Ajouter un membre</h2>
+    <label for="username">Nom d'utilisateur :</label>
+    <input type="text" name="username" id="username" autocomplete="off">
+    <button type="submit" id="add-btn" name="add_member">Ajouter</button>
+    <p id="username-error" style="color: red; display: none; margin-top: 0.5rem;">Veuillez entrer un nom d'utilisateur.</p>
+  {% endif %}
+</form>
+
+<style>
+  /* Styles existants */
+  .badge {
+    padding: 4px 8px;
+    border-radius: 5px;
+    font-weight: bold;
+    color: white;
+    font-size: 0.9em;
+  }
+  .owner-badge {
+    background-color: #d4af37; /* Or */
+  }
+  .manager-badge {
+    background-color: #007bff; /* Bleu */
+  }
+  .member-badge {
+    background-color: #6c757d; /* Gris */
+  }
+
+  .messages {
+    list-style: none;
+    padding: 0;
+  }
+  .messages li {
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 4px;
+    font-weight: bold;
+  }
+  .messages li.success {
+    background-color: #d4edda;
+    color: #155724;
+  }
+  .messages li.error {
+    background-color: #f8d7da;
+    color: #721c24;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+    font-family: "Poppins", sans-serif;
+  }
+
+  th, td {
+    border: 1px solid #ccc;
+    padding: 12px 10px;
+    text-align: left;
+  }
+
+  tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+
+  th {
+    background-color: #f1f1f1;
+    font-weight: bold;
+  }
+
+  a.confirm-removal {
+    background-color: #dc3545;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 0.9em;
+    transition: background-color 0.2s ease;
+  }
+
+  a.confirm-removal:hover {
+    background-color: #c82333;
+  }
+
+  button[type="submit"] {
+    background-color: #28a745;
+    color: white;
+    padding: 8px 16px;
+    margin-top: 1rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+
+  button[type="submit"]:hover:not(:disabled) {
+    background-color: #218838;
+  }
+
+  button[type="submit"]:disabled {
+    background-color: #94d3a2;
+    cursor: not-allowed;
+  }
+
+  input[type="text"] {
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 1em;
+  }
+</style>
+
+<script>
+  // Confirmation avant suppression
+  document.addEventListener('DOMContentLoaded', function () {
+    const links = document.querySelectorAll('a.confirm-removal');
+    links.forEach(link => {
+      link.addEventListener('click', function (event) {
+        const confirmed = confirm("Êtes-vous sûr de vouloir retirer cet utilisateur du projet ?");
+        if (!confirmed) {
+          event.preventDefault();
+        }
+      });
+    });
+
+    // Gestion du bouton Mettre à jour
+    const updateBtn = document.getElementById('update-btn');
+    if (updateBtn) {
+      updateBtn.addEventListener('click', () => {
+        updateBtn.disabled = true;
+        updateBtn.innerText = 'Mise à jour...';
+      });
+    }
+  });
+
+  // Validation JS formulaire ajout membre
+  function validateAddMemberForm() {
+    const usernameInput = document.getElementById('username');
+    const errorMsg = document.getElementById('username-error');
+    if (!usernameInput.value.trim()) {
+      errorMsg.style.display = 'block';
+      usernameInput.focus();
+      return false;
+    }
+    errorMsg.style.display = 'none';
+    return true;
+  }
+</script>

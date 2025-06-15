@@ -1,0 +1,7 @@
+<h2>Invite a user to {{ project.title }}</h2>
+
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Send Invitation</button>
+</form>

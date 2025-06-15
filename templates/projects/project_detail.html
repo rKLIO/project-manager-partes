@@ -1,0 +1,91 @@
+{% load project_tags %}
+{% load static %}
+
+<h3>Parts of this Project</h3>
+<ul>
+  {% for part in project.parts.all %}
+    <li>
+      <strong>{{ part.title }}</strong>: {{ part.description }}
+
+      {% if user == project.owner or memberships|get_role:user == 'manager' %}
+        <a href="{% url 'edit_part' part.id %}">Edit</a>
+        <a href="{% url 'delete_part' part.id %}">Delete</a>
+      {% endif %}
+
+      <!-- Liste des tâches pour cette partie -->
+      <ul>
+        {% for task in part.tasks.all %}
+          <li>
+            {% if task.completed %}✅{% else %}🔲{% endif %}
+            <strong>{{ task.title }}</strong> - {{ task.due_date }}
+            
+            {% if user == project.owner or memberships|get_role:user == 'manager' %}
+              <a href="{% url 'edit_task' task.id %}">Edit</a>
+              <a href="{% url 'delete_task' task.id %}">Delete</a>
+            {% endif %}
+          </li>
+        {% empty %}
+          <li>No tasks yet for this part.</li>
+        {% endfor %}
+      </ul>
+
+      {% if user == project.owner or memberships|get_role:user == 'manager' %}
+        <a href="{% url 'add_task' part.id %}">Add a task</a>
+      {% endif %}
+    </li>
+  {% empty %}
+    <li>No parts yet.</li>
+  {% endfor %}
+</ul>
+
+{% if user == project.owner or memberships|get_role:user == 'manager' %}
+  <a href="{% url 'add_part' project.slug %}">Add a new part</a>
+{% endif %}
+
+<h3>Membres du projet :</h3>
+<ul>
+    <li><strong>Propriétaire :</strong> {{ project.owner.username }}</li>
+    {% for membership in memberships %}
+        <li>
+            {{ membership.user.username }} ({{ membership.get_role_display }})
+            {% if request.user == project.owner and membership.user != project.owner %}
+                <form method="post" action="{% url 'remove_member' project.slug membership.user.id %}" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit">Retirer</button>
+                </form>
+            {% endif %}
+        </li>
+    {% empty %}
+        <li>Aucun autre membre.</li>
+    {% endfor %}
+</ul>
+
+<h3>Tâches :</h3>
+
+<form method="get" action="">
+    <label for="assigned_to">Filtrer les tâches par membre :</label>
+    <select name="assigned_to" id="assigned_to" onchange="this.form.submit()">
+        <option value="">-- Tous les membres --</option>
+        {% for membership in memberships %}
+            <option value="{{ membership.user.id }}"
+                {% if selected_user_id == membership.user.id %}selected{% endif %}>
+                {{ membership.user.username }} ({{ membership.get_role_display }})
+            </option>
+        {% endfor %}
+    </select>
+</form>
+
+<ul>
+    {% for task in tasks %}
+        <li>
+            <strong>{{ task.title }}</strong> 
+            {% if task.assigned_to %}
+                (assignée à {{ task.assigned_to.username }})
+            {% else %}
+                (non assignée)
+            {% endif %}
+        </li>
+    {% empty %}
+        <li>Aucune tâche trouvée pour ce membre.</li>
+    {% endfor %}
+</ul>

@@ -1,0 +1,15 @@
+<h2>Project Invitations</h2>
+
+{% if invitations %}
+  <ul>
+    {% for invitation in invitations %}
+      <li>
+        Project: {{ invitation.project.title }} —
+        Invited by: {{ invitation.inviter.username }}
+        <a href="{% url 'accept_invitation' invitation.id %}">Accept</a>
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>You have no pending invitations.</p>
+{% endif %}
