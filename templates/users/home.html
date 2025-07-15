@@ -1,41 +1,92 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="fr">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Tableau de bord - {{ user.first_name }}</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {% load static %}
-    {% comment %} <link rel="stylesheet" href="{% static 'css/style.css' %}"> {% endcomment %}
-</head>
-<body>
-    <h1>Welcome, {{ user.first_name }}!</h1>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-    <p>This is your personal dashboard.</p>
+    {% comment %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+    {% endcomment %} 
+    <link rel="stylesheet" href={% static 'css\users\home.css'%}>
+  </head>
 
-    <h2>My Projects</h2>
+  <body>
+    <div class="container">
+      <div class="sidebar">
+        <a onclick="window.location.href='{% url 'home' %}'">
+          <div class="redirection-button">
+            <div> <i class="fa-solid fa-table-columns"></i>  </div>
+            <div> DASHBOARD </div>  
+          </div>  
+        </a>
+        <a onclick="window.location.href='{% url 'home' %}'">
+          <div class="redirection-button">
+            <div> <i class="fa-solid fa-folder"></i> </div>
+            <div> PROJECTS </div>
+          </div>
+        </a>
+        <a onclick="window.location.href='{% url 'home' %}'">
+          <div class="redirection-button">
+            <div> <i class="fa-solid fa-list-check"></i> </div>
+            <div> TASKS </div>
+          </div>
+        </a>
+        <a onclick="window.location.href='{% url 'home' %}'">
+          <div class="redirection-button">
+            <div> <i class="fa-solid fa-people-group"></i> </div>
+            <div> TEAMS </div>
+          </div>
+        </a>
+      </div>
 
-    {% if projects %}
-      <ul>
-        {% for project in projects %}
-        <li>
-          {{ project.title }} –
-          <a href="{% url 'project_detail' slug=project.slug %}">View</a> |
-          <a href="{% url 'edit_project' slug=project.slug %}">Edit</a> |
-          <a href="{% url 'delete_project' slug=project.slug %}">Delete</a>
-        </li>
-        {% endfor %}
-      </ul>
-    {% else %}
-      <p>You have no projects yet.</p>
-    {% endif %}
+      <div class="content-div">
+        <h1 style="justify-self: center;"> Welcome, {{ user.first_name }} to your personal dashboard !</h1>
 
-    <a href="{% url 'create_project' %}">+ Add Project</a>
+        {% comment %} <p>This is your personal dashboard.</p> {% endcomment %}
 
-    <hr>
+        <h2>My Projects</h2>
 
-    <ul>    
-      <li><a href="#">My Tasks</a> (coming soon)</li>
-      <li><a href="{% url 'logout' %}">Logout</a></li>
-    </ul>
-</body>
+        {% if projects %}
+        <ul>
+          {% for project in projects %}
+          <li>
+            {% comment %} {{ project.title }} {% endcomment %} 
+            <a href="{% url 'project_detail' slug=project.slug %}"> {{ project.title }} </a> |
+            <a href="{% url 'edit_project' slug=project.slug %}">Edit</a> |
+            <a href="{% url 'delete_project' slug=project.slug %}">Delete</a>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p>You have no projects yet.</p>
+        {% endif %}
+
+        <a href="{% url 'create_project' %}">+ Add Project</a>
+
+        <hr />
+
+        <h2>My Tasks</h2>
+
+        {% if tasks %}
+          <ul>
+          {% for task in tasks %} 
+            <li>
+            {{ task.part }} – {{ task.title }}
+            </li>
+          {% endfor %}
+          </ul>
+        {% else %}
+        <p>You have no tasks assigned.</p>
+        {% endif %}
+
+        <ul>
+          {% comment %} <li><a href="#">My Tasks</a> (coming soon)</li> {% endcomment %}
+          <li><a href="{% url 'logout' %}">Logout</a></li>
+        </ul>
+      </div>
+    </div>
+  </body>
 </html>

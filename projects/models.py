@@ -8,6 +8,8 @@ class Project(models.Model):
     description = models.TextField(blank=True)
     slug = models.SlugField(unique=True, blank=True)  # 👈 Ajout du champ slug
     created_at = models.DateTimeField(auto_now_add=True)
+    # image = models.ImageField(
+    # upload_to='', blank=True, null=True,)
 
     members = models.ManyToManyField(
         settings.AUTH_USER_MODEL,

@@ -29,11 +29,12 @@ def logout_view(request):
     logout(request)
     return redirect('login')
 
-from projects.models import Project
+from projects.models import Project, Task
 
 @login_required
 def home_view(request):
     user = request.user
     projects = Project.objects.filter(owner=user)
-    return render(request, 'users/home.html', {'user': user, 'projects': projects})
+    tasks = Task.objects.filter(assigned_to=user)
+    return render(request, 'users/home.html', {'user': user, 'projects': projects, 'tasks': tasks})
 
